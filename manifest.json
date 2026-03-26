@@ -20,16 +20,16 @@
     },
     "content_scripts": [
         {
-            "js": [
-                "src/data/constants.js",
-                "src/data/data.js",
-                "src/content/content.js"
-            ],
+            "css": ["src/content/content.css"],
+            "js": ["src/content/content.js"],
             "matches": [
                 "https://*/*"
             ]
         }
     ],
-    "permissions": ["storage"]
+    "background": {
+        "service_worker": "src/background/service-worker.js"
+    },
+    "permissions": ["storage", "alarms"]
 
 }
