@@ -4,23 +4,27 @@
     "manifest_version": 3,
     "description": "Tasbeeh",
     "icons": {
-        "16":  "icon16.png",
-        "32":  "icon32.png",
-        "48":  "icon48.png",
-        "128": "icon128.png"
+        "16":  "assets/icons/icon16.png",
+        "32":  "assets/icons/icon32.png",
+        "48":  "assets/icons/icon48.png",
+        "128": "assets/icons/icon128.png"
     },
     "action": {
         "default_icon": {
-            "16":  "icon16.png",
-            "32":  "icon32.png",
-            "48":  "icon48.png",
-            "128": "icon128.png"
+            "16":  "assets/icons/icon16.png",
+            "32":  "assets/icons/icon32.png",
+            "48":  "assets/icons/icon48.png",
+            "128": "assets/icons/icon128.png"
         },
-        "default_popup": "popup.html"
+        "default_popup": "src/popup/popup.html"
     },
     "content_scripts": [
         {
-            "js": ["AzkarAlsaba7.js", "main.js"],
+            "js": [
+                "src/data/constants.js",
+                "src/data/data.js",
+                "src/content/content.js"
+            ],
             "matches": [
                 "https://*/*"
             ]

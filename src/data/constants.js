@@ -1,0 +1,43 @@
+// src/data/constants.js
+
+const themes = {
+    modern: {
+        bg: '#ffffff',
+        color: '#1a1a1a',
+        border: '1.5px solid #e0e0e0',
+        shadow: '0 8px 32px rgba(0,0,0,0.14)',
+        radius: '16px',
+        labelColor: '#2e7d52',
+        labelBg: '#f1f8f4',
+        labelBorder: '1px solid #c8e6c9',
+        divider: '#eeeeee',
+        closeBg: '#2e7d52',
+        closeColor: '#ffffff',
+    },
+    dark: {
+        bg: '#12121f',
+        color: '#e8d5a3',
+        border: '1px solid rgba(212,175,55,0.35)',
+        shadow: '0 0 32px rgba(212,175,55,0.15), 0 8px 24px rgba(0,0,0,0.5)',
+        radius: '16px',
+        labelColor: '#d4af37',
+        labelBg: 'rgba(212,175,55,0.08)',
+        labelBorder: '1px solid rgba(212,175,55,0.25)',
+        divider: 'rgba(212,175,55,0.15)',
+        closeBg: 'rgba(212,175,55,0.15)',
+        closeColor: '#d4af37',
+    },
+    minimal: {
+        bg: 'rgba(252,252,252,0.92)',
+        color: '#555555',
+        border: 'none',
+        shadow: '0 2px 16px rgba(0,0,0,0.08)',
+        radius: '12px',
+        labelColor: '#aaaaaa',
+        labelBg: 'transparent',
+        labelBorder: '1px solid #ebebeb',
+        divider: '#f0f0f0',
+        closeBg: '#eeeeee',
+        closeColor: '#888888',
+    },
+};
