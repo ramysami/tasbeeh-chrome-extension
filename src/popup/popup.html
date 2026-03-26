@@ -81,6 +81,25 @@
         }
         .card-minimal .theme-name { color: #555; }
 
+        .card-auto {
+            background: linear-gradient(135deg, #ffffff 50%, #12121f 50%);
+            border-color: #e0e0e0;
+        }
+        .card-auto .theme-name { 
+            background: white; 
+            display: inline-block; 
+            padding: 2px 4px; 
+            border-radius: 4px;
+            color: #1a1a1a;
+        }
+        .card-auto .theme-desc {
+            background: rgba(0,0,0,0.6);
+            color: #fff;
+            padding: 2px 4px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
         /* ── Chips ── */
         .chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 10px 14px; }
 
@@ -169,6 +188,10 @@
     <!-- Theme -->
     <p class="section-title">Theme</p>
     <div class="themes">
+        <div class="theme-card card-auto" data-theme="auto">
+            <div class="theme-name">Auto Detect</div>
+            <div class="theme-desc">Matches page bg</div>
+        </div>
         <div class="theme-card card-modern" data-theme="modern">
             <div class="theme-name">Clean & Modern</div>
             <div class="theme-desc">White bg · Islamic green</div>

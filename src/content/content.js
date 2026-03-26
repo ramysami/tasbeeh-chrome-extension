@@ -10,12 +10,48 @@ try {
         if (currentContainer === container) currentContainer = null;
     };
 
+    const isDarkPage = () => {
+        const getBgColor = (el) => {
+            if (!el) return null;
+            const style = window.getComputedStyle(el);
+            const color = style.backgroundColor;
+            // Check if color is actually set (not transparent)
+            if (color && color !== 'rgba(0, 0, 0, 0)' && color !== 'transparent') {
+                return color;
+            }
+            return null;
+        };
+
+        // Try to get background from body, then html
+        let bgColor = getBgColor(document.body) || getBgColor(document.documentElement);
+        
+        if (bgColor) {
+            const rgb = bgColor.match(/\d+/g);
+            if (rgb && rgb.length >= 3) {
+                // Calculate perceived brightness (YIQ formula)
+                const brightness = (parseInt(rgb[0]) * 299 + parseInt(rgb[1]) * 587 + parseInt(rgb[2]) * 114) / 1000;
+                return brightness < 128;
+            }
+        }
+
+        // Fallback to system preference ONLY if we can't detect a specific background color
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            return true;
+        }
+
+        return false;
+    };
+
     const buildContainer = (settings, phrase) => {
         const container = document.createElement('div');
         container.id = 'tasbeeh-container';
         
         // Add theme and position classes
-        container.classList.add(`theme-${settings.theme}`);
+        let theme = settings.theme;
+        if (theme === 'auto') {
+            theme = isDarkPage() ? 'dark' : 'modern';
+        }
+        container.classList.add(`theme-${theme}`);
         container.classList.add(`pos-${settings.position}`);
 
         // Header
