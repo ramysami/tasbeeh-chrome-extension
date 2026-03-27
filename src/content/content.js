@@ -11,35 +11,57 @@ try {
     };
 
     const isDarkPage = () => {
-        const getBgColor = (el) => {
-            if (!el) return null;
-            const style = window.getComputedStyle(el);
-            const color = style.backgroundColor;
-            // Check if color is actually set (not transparent)
-            if (color && color !== 'rgba(0, 0, 0, 0)' && color !== 'transparent') {
-                return color;
-            }
-            return null;
-        };
-
-        // Try to get background from body, then html
-        let bgColor = getBgColor(document.body) || getBgColor(document.documentElement);
+        // 1. Explicit Attributes (Higher Priority)
+        const html = document.documentElement;
+        const body = document.body;
         
-        if (bgColor) {
-            const rgb = bgColor.match(/\d+/g);
-            if (rgb && rgb.length >= 3) {
-                // Calculate perceived brightness (YIQ formula)
-                const brightness = (parseInt(rgb[0]) * 299 + parseInt(rgb[1]) * 587 + parseInt(rgb[2]) * 114) / 1000;
-                return brightness < 128;
-            }
+        const darkAttributes = ['data-theme', 'theme', 'data-bs-theme', 'data-color-mode'];
+        for (const attr of darkAttributes) {
+            const val = html.getAttribute(attr) || body.getAttribute(attr);
+            if (val && val.toLowerCase().includes('dark')) return true;
+            if (val && val.toLowerCase().includes('light')) return false;
         }
 
-        // Fallback to system preference ONLY if we can't detect a specific background color
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // 2. Class Names
+        const darkClasses = ['dark', 'dark-mode', 'theme-dark', 'night-mode'];
+        if (darkClasses.some(cls => html.classList.contains(cls) || body.classList.contains(cls))) {
             return true;
         }
 
-        return false;
+        // 3. CSS Color Scheme Property
+        const htmlStyle = window.getComputedStyle(html);
+        if (htmlStyle.colorScheme === 'dark') return true;
+        if (htmlStyle.colorScheme === 'light') return false;
+
+        // 4. Visual Analysis (Luminance check)
+        const getLuminance = (rgbStr) => {
+            if (!rgbStr || rgbStr === 'transparent' || rgbStr === 'rgba(0, 0, 0, 0)') return null;
+            const rgb = rgbStr.match(/\d+/g);
+            if (!rgb || rgb.length < 3) return null;
+            // Standard relative luminance formula
+            return (0.2126 * parseInt(rgb[0]) + 0.7152 * parseInt(rgb[1]) + 0.0722 * parseInt(rgb[2])) / 255;
+        };
+
+        // Check background of body or html
+        const bodyBg = window.getComputedStyle(body).backgroundColor;
+        const htmlBg = window.getComputedStyle(html).backgroundColor;
+        const bgLum = getLuminance(bodyBg) ?? getLuminance(htmlBg);
+
+        // Check text color (Inverse signal: light text usually means dark background)
+        const bodyColor = window.getComputedStyle(body).color;
+        const textLum = getLuminance(bodyColor);
+
+        if (bgLum !== null) {
+            return bgLum < 0.5;
+        }
+
+        // If background is transparent/unset, rely on text color
+        if (textLum !== null) {
+            return textLum > 0.6; // Light text -> Dark page
+        }
+
+        // 5. System Preference (Final Fallback)
+        return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
     };
 
     const buildContainer = (settings, phrase) => {
