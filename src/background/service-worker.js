@@ -1,7 +1,7 @@
 // src/background/service-worker.js
 
 const DEFAULTS = {
-    theme: 'modern',
+    theme: 'auto',
     duration: 15,
     fontSize: 20,
     interval: 5,

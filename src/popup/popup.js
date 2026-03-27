@@ -1,4 +1,4 @@
-const defaults = { theme: 'modern', duration: 15, fontSize: 20, interval: 5, azkarMode: 'general', position: 'top-right', enabled: true };
+const defaults = { theme: 'auto', duration: 15, fontSize: 20, interval: 5, azkarMode: 'general', position: 'top-right', enabled: true };
 
 const toggle = document.getElementById('enabled-toggle');
 const toggleLabel = document.getElementById('toggle-label');
