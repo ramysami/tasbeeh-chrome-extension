@@ -78,6 +78,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.vars.outputs.tag }}
+          name: "Release ${{ steps.vars.outputs.tag }}"
           files: ${{ steps.filenames.outputs.zip }}
           generate_release_notes: true
           # Ensures the release points to the commit with the manifest change
