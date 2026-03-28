@@ -1,0 +1,80 @@
+name: Create Chrome Extension Release
+
+on:
+  push:
+    tags:
+      - 'v*' # Triggers on standard tag push (e.g., v1.0.0)
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g., 1.0.1 - DO NOT include the "v")'
+        required: true
+        type: string
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      # 1. Determine Variables based on how the action was triggered
+      - name: Set Release Variables
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "NEW_VERSION=${{ github.event.inputs.version }}" >> $GITHUB_ENV
+            echo "TARGET_BRANCH=${{ github.ref_name }}" >> $GITHUB_ENV
+            echo "TAG_NAME=v${{ github.event.inputs.version }}" >> $GITHUB_ENV
+          else
+            echo "NEW_VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_ENV
+            echo "TARGET_BRANCH=main" >> $GITHUB_ENV
+            echo "TAG_NAME=${GITHUB_REF_NAME}" >> $GITHUB_ENV
+          fi
+
+      # 2. Checkout Code (fetches all branches so we can switch if needed)
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 
+
+      # 3. Switch to the correct branch based on trigger
+      - name: Checkout Target Branch
+        run: git checkout ${{ env.TARGET_BRANCH }}
+
+      # 4. Auto-Increment, Commit, and Push Manifest
+      - name: Bump Version and Commit
+        run: |
+          # Update manifest.json
+          jq --arg ver "${{ env.NEW_VERSION }}" '.version = $ver' manifest.json > tmp.json && mv tmp.json manifest.json
+          
+          # Configure Git
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Commit and Push back to the target branch
+          git add manifest.json
+          git commit -m "chore: bump version to ${{ env.NEW_VERSION }} [skip ci]" || echo "No changes to commit"
+          git push origin ${{ env.TARGET_BRANCH }}
+
+      # 5. Prepare Filenames
+      - name: Prepare Filenames
+        run: |
+          RAW_NAME=$(jq -r '.name' manifest.json)
+          CLEAN_NAME="${RAW_NAME// /_}"
+          echo "ZIP_FILENAME=${CLEAN_NAME}_${{ env.TAG_NAME }}.zip" >> $GITHUB_ENV
+          echo "CRX_FILENAME=${CLEAN_NAME}_${{ env.TAG_NAME }}.crx" >> $GITHUB_ENV
+
+      # 6. Create Flat Zip (Your exact exclusion logic)
+      - name: Create Flat Zip
+        run: |
+          zip -r "${{ env.ZIP_FILENAME }}" . -x ".git/*" ".github/*" ".gitignore" "*.md" "tests/*" "assets/screenshots/*" ".gemini/*" "docs/*"
+
+      # 9. Create GitHub Release
+      - name: Create GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # gh release create will automatically create the tag on the current branch if it doesn't exist (e.g., via workflow_dispatch)
+          gh release create ${{ env.TAG_NAME }} "${{ env.ZIP_FILENAME }}" \
+            --title "Release ${{ env.TAG_NAME }}" \
+            --generate-notes
