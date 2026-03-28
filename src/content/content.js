@@ -5,8 +5,22 @@ try {
 
     const animateOut = (container) => {
         if (!container) return;
+        
+        // Prevent multiple calls
+        if (container.classList.contains('hiding')) return;
+        
         container.classList.add('hiding');
-        container.addEventListener('animationend', () => container.remove(), { once: true });
+        
+        // Specifically wait for the tasbeeh-out animation to finish
+        const handleAnimationEnd = (e) => {
+            if (e.animationName === 'tasbeeh-out') {
+                container.removeEventListener('animationend', handleAnimationEnd);
+                container.remove();
+            }
+        };
+        
+        container.addEventListener('animationend', handleAnimationEnd);
+        
         if (currentContainer === container) currentContainer = null;
     };
 
@@ -82,7 +96,7 @@ try {
 
         const label = document.createElement('span');
         label.id = 'tasbeeh-label';
-        label.textContent = phrase.label;
+        label.textContent = phrase.label || '✦ تسبيح';
 
         const closeBtn = document.createElement('button');
         closeBtn.id = 'tasbeeh-close';
@@ -92,13 +106,29 @@ try {
         header.appendChild(label);
         header.appendChild(closeBtn);
 
+        // Progress indicator
+        const progress = document.createElement('div');
+        progress.id = 'tasbeeh-progress';
+        const progressBar = document.createElement('div');
+        progressBar.id = 'tasbeeh-progress-bar';
+        
+        // Stop animationend from bubbling up to container
+        progressBar.addEventListener('animationend', (e) => e.stopPropagation());
+        
+        // Set duration from settings with fallback
+        const duration = settings.duration || 15;
+        progressBar.style.animationDuration = `${duration}s`;
+        
+        progress.appendChild(progressBar);
+
         // Phrase
         const phraseDiv = document.createElement('div');
         phraseDiv.id = 'tasbeeh-phrase';
         phraseDiv.textContent = phrase.text;
-        phraseDiv.style.fontSize = `${settings.fontSize}px`;
+        phraseDiv.style.fontSize = `${settings.fontSize || 20}px`;
 
         container.appendChild(header);
+        container.appendChild(progress);
         container.appendChild(phraseDiv);
         
         return container;
@@ -112,11 +142,12 @@ try {
         currentContainer = buildContainer(settings, phrase);
         document.body.appendChild(currentContainer);
 
+        const duration = settings.duration || 15;
         setTimeout(() => {
             if (currentContainer && document.body.contains(currentContainer)) {
                 animateOut(currentContainer);
             }
-        }, settings.duration * 1000);
+        }, duration * 1000);
     };
 
     // Listen for commands from the background service worker
