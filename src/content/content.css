@@ -12,6 +12,13 @@
     -webkit-backdrop-filter: blur(10px) !important;
     border-radius: 16px !important;
     box-sizing: border-box !important;
+
+    /* Anti-zoom logic */
+    --tasbeeh-zoom: 1;
+    --tasbeeh-origin: top right;
+    transform-origin: var(--tasbeeh-origin) !important;
+    transform: scale(var(--tasbeeh-zoom)) !important;
+
     animation: tasbeeh-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
 }
 
@@ -89,15 +96,15 @@
     font-family: "Segoe UI", "Tahoma", "Arabic Typesetting", serif !important;
 }
 
-/* Animations */
+/* Animations that respect the base zoom scale */
 @keyframes tasbeeh-in {
-    from { opacity: 0; transform: translateY(-10px) scale(0.96); }
-    to   { opacity: 1; transform: translateY(0)    scale(1);    }
+    from { opacity: 0; transform: translateY(-10px) scale(calc(var(--tasbeeh-zoom) * 0.96)); }
+    to   { opacity: 1; transform: translateY(0)    scale(var(--tasbeeh-zoom)); }
 }
 
 @keyframes tasbeeh-out {
-    from { opacity: 1; transform: translateY(0)    scale(1);    }
-    to   { opacity: 0; transform: translateY(-8px) scale(0.97); }
+    from { opacity: 1; transform: translateY(0)    scale(var(--tasbeeh-zoom)); }
+    to   { opacity: 0; transform: translateY(-8px) scale(calc(var(--tasbeeh-zoom) * 0.97)); }
 }
 
 @keyframes tasbeeh-progress-fill {
@@ -153,8 +160,8 @@
 #tasbeeh-container.theme-minimal #tasbeeh-close { background-color: #eeeeee !important; color: #888888 !important; }
 #tasbeeh-container.theme-minimal #tasbeeh-progress-bar { background-color: #aaaaaa !important; }
 
-/* Positions */
-.pos-top-right    { top: 20px !important;  right: 20px !important; }
-.pos-top-left     { top: 20px !important;  left:  20px !important; }
-.pos-bottom-right { bottom: 20px !important; right: 20px !important; }
-.pos-bottom-left  { bottom: 20px !important; left:  20px !important; }
+/* Positions with transform origin overrides */
+.pos-top-right    { top: 20px !important;  right: 20px !important; --tasbeeh-origin: top right !important; }
+.pos-top-left     { top: 20px !important;  left:  20px !important; --tasbeeh-origin: top left !important; }
+.pos-bottom-right { bottom: 20px !important; right: 20px !important; --tasbeeh-origin: bottom right !important; }
+.pos-bottom-left  { bottom: 20px !important; left:  20px !important; --tasbeeh-origin: bottom left !important; }

@@ -78,10 +78,13 @@ try {
         return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
     };
 
-    const buildContainer = (settings, phrase) => {
+    const buildContainer = (settings, phrase, zoomFactor = 1) => {
         const container = document.createElement('div');
         container.id = 'tasbeeh-container';
         container.setAttribute('translate', 'no');
+        
+        // Set anti-zoom scaling (1/zoomFactor)
+        container.style.setProperty('--tasbeeh-zoom', 1 / zoomFactor);
         
         // Add theme and position classes
         let theme = settings.theme;
@@ -90,6 +93,10 @@ try {
         }
         container.classList.add(`theme-${theme}`);
         container.classList.add(`pos-${settings.position}`);
+
+        // Set transform origin based on position
+        const origin = settings.position.replace('-', ' ');
+        container.style.setProperty('--tasbeeh-origin', origin);
 
         // Header
         const header = document.createElement('div');
@@ -135,12 +142,12 @@ try {
         return container;
     };
 
-    const showContainer = (phrase, settings) => {
+    const showContainer = (phrase, settings, zoomFactor) => {
         if (currentContainer) {
             currentContainer.remove();
         }
 
-        currentContainer = buildContainer(settings, phrase);
+        currentContainer = buildContainer(settings, phrase, zoomFactor);
         document.body.appendChild(currentContainer);
 
         const duration = settings.duration || 15;
@@ -154,7 +161,7 @@ try {
     // Listen for commands from the background service worker
     chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         if (request.action === 'show-zikr') {
-            showContainer(request.phrase, request.settings);
+            showContainer(request.phrase, request.settings, request.zoomFactor);
         }
     });
 

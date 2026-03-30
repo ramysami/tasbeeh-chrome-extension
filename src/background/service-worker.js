@@ -76,12 +76,15 @@ chrome.alarms.onAlarm.addListener((alarm) => {
                 getPhrase(settings.azkarMode, (phrase) => {
                     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
                         tabs.forEach(tab => {
-                            chrome.tabs.sendMessage(tab.id, { 
-                                action: 'show-zikr',
-                                phrase: phrase,
-                                settings: settings
-                            }, () => {
-                                if (chrome.runtime.lastError) { /* ignore */ }
+                            chrome.tabs.getZoom(tab.id, (zoomFactor) => {
+                                chrome.tabs.sendMessage(tab.id, { 
+                                    action: 'show-zikr',
+                                    phrase: phrase,
+                                    settings: settings,
+                                    zoomFactor: zoomFactor
+                                }, () => {
+                                    if (chrome.runtime.lastError) { /* ignore */ }
+                                });
                             });
                         });
                     });
