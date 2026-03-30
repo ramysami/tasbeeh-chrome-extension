@@ -81,6 +81,7 @@ try {
     const buildContainer = (settings, phrase) => {
         const container = document.createElement('div');
         container.id = 'tasbeeh-container';
+        container.setAttribute('translate', 'no');
         
         // Add theme and position classes
         let theme = settings.theme;
